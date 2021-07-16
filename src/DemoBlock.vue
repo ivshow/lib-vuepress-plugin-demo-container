@@ -35,7 +35,7 @@
         @click.stop="copyCode"
       >{{ copiedText }}</span>
       <transition name="bounce">
-        <span v-show="copied" class="copy-action copy-action-success">{{ copiedText }}</span>
+        <span v-show="copied" class="copy-action copy-action-success" @click.stop>{{ copiedText }}</span>
       </transition>
     </div>
   </div>
@@ -108,6 +108,7 @@ export default {
       document.execCommand("selectAll", false, null);
       this.copied = document.execCommand("copy");
       pre.removeAttribute("contenteditable");
+      getSelection().empty();
       setTimeout(() => {
         this.copied = false;
       }, 1500);
@@ -144,7 +145,7 @@ export default {
   mounted() {
     this.$nextTick(() => {
       let codeContent = this.$el.getElementsByClassName('code-content')[0];
-      this.codeContentWidth = this.$el.offsetWidth
+      this.codeContentWidth = codeContent.offsetWidth;
       if (this.$el.getElementsByClassName('description').length === 0) {
         codeContent.style.width = "100%";
         codeContent.borderRight = "none";
