@@ -13,13 +13,15 @@ module.exports = options => {
         return params.trim().match(/^demo\s*(.*)$/);
       },
       render(tokens, idx) {
-        const m = tokens[idx].info.trim().match(/^demo\s*(.*)$/);
+        const [desc, iframe] = tokens[idx].info.trim().split('iframe:');
+        const m = desc.match(/^demo\s*(.*)$/);
+        const iframeUrl = iframe.trim();
         if (tokens[idx].nesting === 1) {
           const description = m && m.length > 1 ? m[1] : '';
           const content = tokens[idx + 1].type === 'fence' ? tokens[idx + 1].content : '';
           const encodeOptionsStr = encodeURI(JSON.stringify(options));
           return `<${componentName} :options="JSON.parse(decodeURI('${encodeOptionsStr}'))">
-            <template slot="demo"><!--pre-render-demo:${content}:pre-render-demo--></template>
+            ${iframeUrl ? `<iframe slot="iframe" src="${iframeUrl}"></iframe>` : `<template slot="demo"><!--pre-render-demo:${content}:pre-render-demo--></template>`}
             ${description ? `<div slot="description">${md.render(description).html}</div>` : ''}
             <template slot="source">
           `;

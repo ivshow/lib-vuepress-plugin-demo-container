@@ -7,11 +7,12 @@
   >
     <div class="demo-content">
       <slot name="demo"></slot>
+      <slot name="iframe"></slot>
+    </div>
+    <div class="description" v-if="$slots.description">
+      <slot name="description"></slot>
     </div>
     <div class="meta" ref="meta">
-      <div class="description" v-if="$slots.description">
-        <slot name="description"></slot>
-      </div>
       <div class="code-content">
         <slot name="source"></slot>
       </div>
@@ -70,7 +71,7 @@ export default {
         return this.compoLang.filter(config => config.lang === this.$lang)[0]['demo-block'];
     },
     blockClass() {
-      return `demo-${this.$lang} demo-${this.$router.currentRoute.path
+      return `demo-${this.$lang} demo-${this.$router.currentRoute.path.replace(/\.html/, '')
         .split("/")
         .pop()}`;
     },
@@ -87,13 +88,13 @@ export default {
       return this.$el.getElementsByClassName("meta")[0];
     },
     codeAreaHeight() {
-      if (this.$el.getElementsByClassName("description").length > 0) {
-        return (
-          this.$el.getElementsByClassName("description")[0].clientHeight +
-          this.$el.getElementsByClassName("code-content")[0].clientHeight +
-          20
-        );
-      }
+      // if (this.$el.getElementsByClassName("description").length > 0) {
+      //   return (
+      //     this.$el.getElementsByClassName("description")[0].clientHeight +
+      //     this.$el.getElementsByClassName("code-content")[0].clientHeight +
+      //     20
+      //   );
+      // }
       return this.$el.getElementsByClassName("code-content")[0].clientHeight;
     }
   },
@@ -159,7 +160,7 @@ export default {
 </script>
 <style scoped>
 .demo-block {
-  border: solid 1px #ebebeb;
+  border: solid 1px #eaecef;
   border-radius: 3px;
   transition: 0.2s;
   margin-top: 15px;
@@ -179,26 +180,26 @@ export default {
 }
 .demo-block .meta {
   background-color: #282c34;
-  border: solid 1px #ebebeb;
+  border: solid 1px #eaecef;
   border-radius: 3px;
   overflow: hidden;
   height: 0;
   transition: height 0.2s;
 }
 .demo-block .description {
-  padding: 20px;
+  padding: 24px;
   box-sizing: border-box;
-  border: solid 1px #ebebeb;
+  border-top: 1px dashed #eaecef;
   border-radius: 3px;
   font-size: 14px;
   line-height: 22px;
   color: #666;
   word-break: break-word;
-  margin: 10px;
-  background-color: #fafafa;
+}
+.demo-block .description p {
+  margin: 0 !important;
 }
 .demo-block .demo-block-control {
-  border-top: solid 1px #eaeefb;
   height: 44px;
   box-sizing: border-box;
   background-color: #fafafa;
@@ -304,6 +305,11 @@ export default {
   font-size: 14px;
   padding-left: 5px;
   padding-right: 25px;
+}
+.demo-block iframe {
+  border: 0;
+  width: 100%;
+  display: block;
 }
 
 </style>
