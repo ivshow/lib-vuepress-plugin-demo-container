@@ -1,4 +1,24 @@
 const mdContainer = require('markdown-it-container');
+const path = require('path');
+const fs = require('fs');
+
+const requireCode = (content) => {
+  const codePath = content.match(/^iframe\s*(.*)/);
+
+  if (!codePath) {
+    return {
+      code: content,
+      iframe: ''
+    };
+  }
+
+  const resolvePath = path.join(process.cwd(), '/docs/.vuepress/iframe/', codePath[1]);
+  const code = fs.readFileSync(resolvePath, 'utf8');
+  return {
+    code: code.replace(/<!--[\s\S]*?-->/g, '').trim(),
+    iframe: '/iframe/' + codePath[1].replace(/\.vue/g, '')
+  };
+}
 
 module.exports = options => {
   const {
@@ -10,18 +30,18 @@ module.exports = options => {
   return md => {
     md.use(mdContainer, 'demo', {
       validate(params) {
-        return params.trim().match(/^demo\s*(.*)$/);
+        return params.trim().match(/^demo\s*(.*)/);
       },
       render(tokens, idx) {
-        const [desc, iframe] = tokens[idx].info.trim().split('iframe:');
-        const m = desc.match(/^demo\s*(.*)$/);
-        const iframeUrl = iframe.trim();
+        const m = tokens[idx].info.trim().match(/^demo\s*(.*)$/);
         if (tokens[idx].nesting === 1) {
           const description = m && m.length > 1 ? m[1] : '';
           const content = tokens[idx + 1].type === 'fence' ? tokens[idx + 1].content : '';
           const encodeOptionsStr = encodeURI(JSON.stringify(options));
+          const { code, iframe } = requireCode(content);
+          tokens[idx + 1].content = code;
           return `<${componentName} :options="JSON.parse(decodeURI('${encodeOptionsStr}'))">
-            ${iframeUrl ? `<iframe slot="iframe" src="${iframeUrl}"></iframe>` : `<template slot="demo"><!--pre-render-demo:${content}:pre-render-demo--></template>`}
+            ${iframe ? `<iframe slot="iframe" src="${iframe}"></iframe>` : `<template slot="demo"><!--pre-render-demo:${content}:pre-render-demo--></template>`}
             ${description ? `<div slot="description">${md.render(description).html}</div>` : ''}
             <template slot="source">
           `;
